@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the code from the Git branch
+                git branch: 'venkat', url: 'https://github.com/SivaKakumani/myecommerce-java.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    // Build the Docker image locally
+                    powershell 'docker build -t java-maven-app .'
+                }
+            }
+        }
+
+        stage('Run') {
+            steps {
+                script {
+                    // Stop and remove any existing container with the same name
+                    // powershell """
+                    // docker stop myecommerce-python -ErrorAction SilentlyContinue
+                    // docker rm myecommerce-python -ErrorAction SilentlyContinue
+                    // """
+
+                    // Run the Docker container
+                    powershell 'docker run -d --network python-mysql-network -p 8081:8081 --name java-maven-app java-maven-app'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean workspace after build
+            cleanWs()
+        }
+    }
+}
